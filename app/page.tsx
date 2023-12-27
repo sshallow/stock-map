@@ -1,5 +1,6 @@
 
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 import NavBar from '../components/NavBar';
 
 export default function Home() {
@@ -11,15 +12,33 @@ export default function Home() {
         <p className='text-2xl text-muted-foreground'>市场全景,一览无余</p>
 
 
+        {/* 倒序 100 个数 */}
+        <div className='flex flex-col gap-4'>
+          <div className='flex gap-4'>
+            <div className='flex flex-col gap-2'>
+              <p className='text-2xl font-bold'>100</p>
+              <p className='text-2xl text-muted-foreground'>股票</p>
+            </div>
+            <div className='flex flex-col gap-2'>
+              <p className='text-2xl font-bold'>100</p>
+              <p className='text-2xl text-muted-foreground'>股票</p>
+            </div>
+          </div>
+        </div>
+
       </section>
       <div className='flex gap-6 items-center'>
         <Button variant={"secondary"}>
           开始使用
         </Button>
-        <Button>
+
+        <Link href='/map'>
+          {/* <Button > */}
           开始使用
-        </Button>
+          {/* </Button> */}
+        </Link>
+
       </div>
-    </main>
+    </main >
   )
 }
