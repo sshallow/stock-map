@@ -1,12 +1,49 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function HeaderCard() {
+/**
+ *  [
+      {
+        "title": "涨跌分布",
+        "description": "涨跌家数分布",
+        "content": ["1573","34","3490"],
+ "prefix" = "";
+ "suffix" = "";
+        "sub_content": ["5300"],
+ "sub_prefix" = "沪深京";
+ "sub_suffix" = "只股票";
+      },
+      {
+        "title": "成交额",
+        "description": "全市场成交金额",
+        "content": ["9830"],
+ "prefix" = "";
+ "suffix" = "亿";
+        "sub_content": ["+19.1%"],
+ "sub_prefix" = "";
+ "sub_suffix" = "比昨日";
+      },
+  ],
+    */
+
+export interface HeaderCardProps {
+    title: string;
+    description: string;
+    content: string[];
+    prefix?: string;
+    suffix?: string;
+    sub_content?: string[];
+    sub_prefix?: string;
+    sub_suffix?: string;
+}
+
+// export function HeaderCard(marketData: HeaderCardProps[]) {
+export function HeaderCard({ marketData }: { marketData: HeaderCardProps[] }) {
     return (
-        <div><div className="grid gap-4  md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4  md:grid-cols-2 lg:grid-cols-4">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                        涨跌分布
+                        {marketData[0].title}
                     </CardTitle>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -24,28 +61,26 @@ export function HeaderCard() {
                 <CardContent>
                     <div className="flex items-center space-x-0.5 text-2xl font-bold ">
                         <div className=" text-red-500">
-                            1573
+                            {marketData[0].content[0]}
                             {/* <ArrowTopRightIcon className="h-4 w-4 text-secondary-foreground" /> */}
                         </div>
                         <div>:</div>
                         <div className=" text-gray-500">
-                            34
+                            {marketData[0].content[1]}
                             {/* <ArrowBottomRightIcon className="h-4 w-4 text-secondary-foreground" /> */}
                         </div>
                         <div>:</div>
                         <div className=" text-green-500">
-                            3490
+                            {marketData[0].content[2]}
                             {/* <ArrowBottomRightIcon className="h-4 w-4 text-secondary-foreground" /> */}
                         </div>
                     </div>
-                    <p className="pt-0.5 text-xs text-muted-foreground">沪深京 5300 只股票</p>
+                    <p className="pt-0.5 text-xs text-muted-foreground"> {marketData[0].sub_prefix} {marketData[0].sub_content}{marketData[0].sub_suffix} </p>
                 </CardContent>
             </Card>
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                        沪深 300
-                    </CardTitle>
+                    <CardTitle className="text-sm font-medium">{marketData[1].title}</CardTitle>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -56,38 +91,16 @@ export function HeaderCard() {
                         strokeWidth="2"
                         className="h-4 w-4 text-muted-foreground"
                     >
-                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                    </svg>
-                </CardHeader>
-                <CardContent className="">
-                    <div className="text-2xl font-bold">3020</div>
-                    <p className="text-xs text-muted-foreground">+20 +0.24%</p>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">成交额</CardTitle>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        className="h-4 w-4 text-muted-foreground"
-                    >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                        <rect width="20" height="14" x="2" y="5" rx="2" />
+                        <path d="M2 10h20" />
                     </svg>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">8350亿</div>
-                    <p className="text-xs text-muted-foreground">+18.1% 比昨日</p>
+                    <div className="text-2xl font-bold">{marketData[1].content}{marketData[1].suffix}</div>
+                    <p className="text-xs text-muted-foreground">{marketData[1].sub_content}{marketData[1].sub_suffix}</p>
                 </CardContent>
             </Card>
-            <Card>
+            {/* <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                         市场体积
@@ -110,9 +123,9 @@ export function HeaderCard() {
                     <div className="text-2xl font-bold">+1,234亿</div>
                     <p className="text-xs text-muted-foreground">+19% 比昨日</p>
                 </CardContent>
-            </Card>
+            </Card> */}
 
         </div>
-        </div>
+
     )
 }

@@ -10,7 +10,7 @@ import requestClient from "@/request/request";
 import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { CheckView } from "./components/check-view";
-import { HeaderCard } from "./components/header-card";
+import { HeaderCard, HeaderCardProps } from "./components/header-card";
 import { PresetSelector } from "./components/preset-selector";
 import { Chart, Schema } from "./components/react-echarts";
 import { SearchListTable, Stock } from './components/search-list-table';
@@ -21,6 +21,7 @@ const defaultParam: string[] = [
     "TBL",
     "PBR60",
     "et2",
+    "TRA"
 ]
 
 const getData = async (x: string, y: string, param: string[], date: string | null) => {
@@ -47,7 +48,31 @@ const getData = async (x: string, y: string, param: string[], date: string | nul
 
 export default function MapPage() {
     // 大盘数据
-    const [marketData, setMarketData] = useState<any>({})
+    const [marketData, setMarketData] = useState<HeaderCardProps[]>(
+        [
+            {
+                "title": "涨跌分布",
+                "description": "涨跌家数分布",
+                "content": ["1573", "34", "3490"],
+                "prefix": "",
+                "suffix": "",
+                "sub_content": ["5300"],
+                "sub_prefix": "沪深京",
+                "sub_suffix": "只股票",
+            },
+            {
+                "title": "成交额",
+                "description": "全市场成交金额",
+                "content": ["9830"],
+                "prefix": "",
+                "suffix": "",
+                "sub_content": ["+19.1%"],
+                "sub_prefix": "",
+                "sub_suffix": "比昨日",
+            },
+        ],
+
+    )
 
     // 搜索
     const [searchValue, setSearchValue] = useState("")
@@ -169,6 +194,40 @@ export default function MapPage() {
                 setData(data.data);
                 setSchemaData(data.schema);
             }
+            // 如果是默认的
+            if (xAxisSelected === defaultX && yAxisSelected === defaultY) {
+                // 涨跌分布
+                const upCount = data?.data.filter((item: number[]) => item[4] > 0).length
+                const zeroCount = data?.data.filter((item: number[]) => item[4] === 0).length
+                const lowCount = data?.data.filter((item: number[]) => item[4] < 0).length
+                // 总成交额
+                const totalAmount = data?.data.reduce((total: number, item: number[]) => total + item[8], 0)
+
+                // 构建大盘数据
+                const marketData = [
+                    {
+                        "title": "涨跌分布",
+                        "description": "涨跌家数分布",
+                        "content": [upCount.toString(), zeroCount.toString(), lowCount.toString(),],
+                        "prefix": "",
+                        "suffix": "",
+                        "sub_content": [data?.data.length.toString()],
+                        "sub_prefix": "沪深京",
+                        "sub_suffix": "只股票",
+                    },
+                    {
+                        "title": "成交额",
+                        "description": "全市场成交金额",
+                        "content": [(totalAmount / 100).toFixed(0).toString()],
+                        "prefix": "",
+                        "suffix": "亿",
+                        "sub_content": ["全市场成交金额"],
+                        "sub_prefix": "",
+                        "sub_suffix": "",
+                    },
+                ]
+                setMarketData(marketData)
+            }
         }
         fetchData();
 
@@ -189,7 +248,7 @@ export default function MapPage() {
                     </div>
 
                     <div className="space-y-4 ">
-                        <HeaderCard />
+                        <HeaderCard marketData={marketData} />
                     </div>
                     <div className="py-4 ">
                         <div className="flex flex-wrap items-center gap-4">
@@ -239,8 +298,10 @@ export default function MapPage() {
                     </div>
                     <div className="relative  w-full pb-[70%]">
                         <Card className="absolute inset-0 overflow-visible">
+                            {/* {
+                                (data && data.length > 0) ? ( */}
                             <Chart
-                                data={data}
+                                data={data ? data : []}
                                 schemaData={schemaData}
                                 searchValue={searchValue}
                                 symbol={symbol}
@@ -252,9 +313,35 @@ export default function MapPage() {
                                 hl_newLow_data={hl_newLow_data}
                                 hl_newStock_data={hl_newStock_data}
                             />
+                            {/* ) :
+                                    (
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <div className="flex flex-col items-center space-y-4">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-12 w-12 text-gray-300 animate-spin"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                >
+                                                    <path
+                                                        fillRule="evenodd"
+                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16z"
+                                                        clipRule="evenodd"
+                                                    />
+                                                </svg>
+                                                <p className="text-sm text-gray-500">
+                                                    加载中...
+                                                </p>
+                                            </div>
+                                        </div>
+
+
+                                    )
+                            } */}
+
                         </Card>
                     </div>
-                                        {/* <Separator className="my-4" /> */}
+                    {/* <Separator className="my-4" /> */}
 
                     <div className="mt-6 space-y-1">
                         <h2 className="text-xl font-semibold tracking-tight">
