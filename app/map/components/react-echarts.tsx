@@ -39,7 +39,6 @@ export interface Schema {
 // 工具函数，用于生成 tooltip
 function generateTooltip(schemaData: Schema[], params: { data: number[] }): string {
   if (!schemaData || schemaData.length === 0) return "";
-  console.log("generateTooltip", schemaData, params)
   const tooltipCard = (
     <TooltipCard
       name={params.data[3].toString()}
@@ -59,7 +58,7 @@ function generateTooltip(schemaData: Schema[], params: { data: number[] }): stri
   flushSync(() => {
     root.render(tooltipCard);
   });
-  console.log(div.innerHTML); // For example, "<svg>...</svg>"
+  // console.log(div.innerHTML); // For example, "<svg>...</svg>"
 
   return div.innerHTML
 }
@@ -167,10 +166,10 @@ export function Chart(props: ChartProps): JSX.Element {
 
   // 使用 useEffect 监听变化, 依赖项数组包含 data, searchValue, symbol, hl_sets
   useEffect(() => {
-    // if (schemaData && schemaData.length < 1) {
-    //   console.warn("schemaData 不存在")
-    //   return
-    // }
+    if (schemaData && schemaData.length < 1) {
+      console.warn("schemaData 不存在")
+      return
+    }
     const chart = chartRef.current?.getEchartsInstance()
     if (!chart) {
       console.warn("ECharts 实例不存在")

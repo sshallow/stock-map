@@ -3,15 +3,17 @@
 import { Search } from "@/components/custom-ui/search";
 import { Button } from "@/components/ui/button";
 
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import requestClient from "@/request/request";
 import { useEffect, useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
 import { CheckView } from "./components/check-view";
 import { HeaderCard } from "./components/header-card";
 import { PresetSelector } from "./components/preset-selector";
 import { Chart, Schema } from "./components/react-echarts";
+import { SearchListTable, Stock } from './components/search-list-table';
 import { Factor, defaultX, defaultY } from "./data/factors";
 
 const defaultParam: string[] = [
@@ -44,6 +46,10 @@ const getData = async (x: string, y: string, param: string[], date: string | nul
 };
 
 export default function MapPage() {
+    // 大盘数据
+    const [marketData, setMarketData] = useState<any>({})
+
+    // 搜索
     const [searchValue, setSearchValue] = useState("")
 
     // 数据, 单位
@@ -65,9 +71,14 @@ export default function MapPage() {
     const [hl_newLow_data, setHl_newLow_data] = useState<number[][]>([])
     const [hl_newStock_data, setHl_newStock_data] = useState<number[][]>([])
 
-    const onSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(event.target.value)
-    }
+    // 高亮结果
+    const [searchListData, setSearchListData] = useState<Stock[]>([])
+
+    const onSearch = useDebouncedCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchValue(event.target.value)
+    }, 300
+    )
+
     const handleXAxisSelect = (preset: Factor) => {
         setXAxisSelected(preset)
     }
@@ -97,11 +108,7 @@ export default function MapPage() {
             ? data.filter((item) => item[5] === -1 || item[5] === -2)
             : []
         setHl_low_data(filter_Hl_Low_Data)
-        // 0：无涨跌停；
-        // const filter_Hl_Zero_Data = newSelectedChecks.has("hl_zero")
-        //   ? data.filter((item) => item[5] === 0)
-        //   : []
-        // setHl_zero_data(filter_Hl_Zero_Data)
+
         // 2：新高；
         const filter_Hl_NewHigh_Data = newSelectedChecks.has("hl_newHigh")
             ? data.filter((item) => item[6] === 2)
@@ -138,18 +145,15 @@ export default function MapPage() {
             }));
         };
 
-        // // 合并数组，同时添加 type 字段来区分不同的数据来源
-        // const combinedData: Stock[] = [
-        //     ...mapDataWithType(filter_Hl_Up_Data || [], 'hl_up'),
-        //     ...mapDataWithType(filter_Hl_Low_Data || [], 'hl_low'),
-        //     ...mapDataWithType(filter_Hl_NewHigh_Data || [], 'hl_newHigh'),
-        //     ...mapDataWithType(filter_Hl_NewLow_Data || [], 'hl_newLow'),
-        //     ...mapDataWithType(filter_Hl_NewStock_Data || [], 'hl_newStock'),
-        // ];
-
-        // // 现在 combinedData 是包含 type 字段的完整数据集
-        // console.log(combinedData);
-        // setSearchListData(combinedData)
+        // 合并数组，同时添加 type 字段来区分不同的数据来源
+        const combinedData: Stock[] = [
+            ...mapDataWithType(filter_Hl_Up_Data || [], 'hl_up'),
+            ...mapDataWithType(filter_Hl_Low_Data || [], 'hl_low'),
+            ...mapDataWithType(filter_Hl_NewHigh_Data || [], 'hl_newHigh'),
+            ...mapDataWithType(filter_Hl_NewLow_Data || [], 'hl_newLow'),
+            ...mapDataWithType(filter_Hl_NewStock_Data || [], 'hl_newStock'),
+        ];
+        setSearchListData(combinedData)
     }
 
     useEffect(() => {
@@ -250,6 +254,19 @@ export default function MapPage() {
                             />
                         </Card>
                     </div>
+                                        {/* <Separator className="my-4" /> */}
+
+                    <div className="mt-6 space-y-1">
+                        <h2 className="text-xl font-semibold tracking-tight">
+                            高亮结果
+                        </h2>
+                        <p className="text-sm text-muted-foreground">
+                            高亮显示的股票
+                        </p>
+                    </div>
+                    <CardContent className="p-0">
+                        <SearchListTable data={searchListData} />
+                    </CardContent>
                 </div>
             </div>
         </div>
