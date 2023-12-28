@@ -22,7 +22,7 @@ const defaultParam: string[] = [
 ]
 
 const getData = async (x: string, y: string, param: string[], date: string | null) => {
-    let url = `http://smartpayt.com/prod-api/factor/paper/sky?x=${x}&y=${y}`;
+    let url = `https://smartpayt.com/prod-api/factor/paper/sky?x=${x}&y=${y}`;
     if (param.length > 0) {
         const paramStr = param.join(',')
         url += `&param=${paramStr}`;
