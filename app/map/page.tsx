@@ -24,6 +24,17 @@ const defaultParam: string[] = [
     "TRA"
 ]
 
+const getMarketData = async () => {
+    try {
+        const response = await requestClient({ url: "http://smartpayt.com/prod-api/factor/paper/market_sky", method: "GET" });
+        console.log("大盘数据1", response);
+        return response.data;
+    } catch (err) {
+        console.error("请求大盘数据失败", err);
+        return null;
+    }
+}
+
 const getData = async (x: string, y: string, param: string[], date: string | null) => {
     let url = `https://smartpayt.com/prod-api/factor/paper/sky?x=${x}&y=${y}`;
     if (param.length > 0) {
@@ -48,31 +59,7 @@ const getData = async (x: string, y: string, param: string[], date: string | nul
 
 export default function MapPage() {
     // 大盘数据
-    const [marketData, setMarketData] = useState<HeaderCardProps[]>(
-        [
-            {
-                "title": "涨跌分布",
-                "description": "涨跌家数分布",
-                "content": ["1573", "34", "3490"],
-                "prefix": "",
-                "suffix": "",
-                "sub_content": ["5300"],
-                "sub_prefix": "沪深京",
-                "sub_suffix": "只股票",
-            },
-            {
-                "title": "成交额",
-                "description": "全市场成交金额",
-                "content": ["9830"],
-                "prefix": "",
-                "suffix": "",
-                "sub_content": ["+19.1%"],
-                "sub_prefix": "",
-                "sub_suffix": "比昨日",
-            },
-        ],
-
-    )
+    const [marketData, setMarketData] = useState<HeaderCardProps[]>([])
 
     // 搜索
     const [searchValue, setSearchValue] = useState("")
@@ -182,7 +169,15 @@ export default function MapPage() {
     }
 
     useEffect(() => {
-        // 请求数据
+        // 请求大盘数据
+        const fetchMarketData = async () => {
+            const data = await getMarketData();
+            if (data) {
+                setMarketData(data);
+            }
+        }
+
+        // 请求5000数据
         const fetchData = async () => {
             const data = await getData(
                 xAxisSelected.factorSymbol,
@@ -195,38 +190,9 @@ export default function MapPage() {
                 setSchemaData(data.schema);
             }
             // 如果是默认的
-            if (xAxisSelected === defaultX && yAxisSelected === defaultY) {
-                // 涨跌分布
-                const upCount = data?.data.filter((item: number[]) => item[4] > 0).length
-                const zeroCount = data?.data.filter((item: number[]) => item[4] === 0).length
-                const lowCount = data?.data.filter((item: number[]) => item[4] < 0).length
-                // 总成交额
-                const totalAmount = data?.data.reduce((total: number, item: number[]) => total + item[8], 0)
-
-                // 构建大盘数据
-                const marketData = [
-                    {
-                        "title": "涨跌分布",
-                        "description": "涨跌家数分布",
-                        "content": [upCount.toString(), zeroCount.toString(), lowCount.toString(),],
-                        "prefix": "",
-                        "suffix": "",
-                        "sub_content": [data?.data.length.toString()],
-                        "sub_prefix": "沪深京",
-                        "sub_suffix": "只股票",
-                    },
-                    {
-                        "title": "成交额",
-                        "description": "全市场成交金额",
-                        "content": [(totalAmount / 100).toFixed(0).toString()],
-                        "prefix": "",
-                        "suffix": "亿",
-                        "sub_content": ["全市场成交金额"],
-                        "sub_prefix": "",
-                        "sub_suffix": "",
-                    },
-                ]
-                setMarketData(marketData)
+            if (xAxisSelected === defaultX && yAxisSelected === defaultY && (!marketData || marketData.length == 0)) {
+                console.log("request market")
+                fetchMarketData()
             }
         }
         fetchData();
@@ -246,10 +212,11 @@ export default function MapPage() {
                             <Button>搜索</Button>
                         </div>
                     </div>
-
-                    <div className="space-y-4 ">
-                        <HeaderCard marketData={marketData} />
-                    </div>
+                    {marketData && marketData.length > 0 && (
+                        <div className="space-y-4">
+                            <HeaderCard marketData={marketData} />
+                        </div>
+                    )}
                     <div className="py-4 ">
                         <div className="flex flex-wrap items-center gap-4">
                             {/* <TeamSwitcher /> */}
