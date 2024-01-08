@@ -18,12 +18,13 @@ interface ChartProps {
   yAxis?: string
   symbol?: string
   logAxis?: boolean
+  hl_newStock_data?: number[][]
   hl_up_data?: number[][]
   hl_low_data?: number[][]
-  hl_zero_data?: number[][]
-  hl_newHigh_data?: number[][]
-  hl_newLow_data?: number[][]
-  hl_newStock_data?: number[][]
+  hl_newHigh30_data?: number[][]
+  hl_newLow30_data?: number[][]
+  hl_newHigh60_data?: number[][]
+  hl_newLow60_data?: number[][]
 }
 
 // Schema 接口定义
@@ -65,7 +66,7 @@ function generateTooltip(schemaData: Schema[], params: { data: number[] }): stri
 
 // 组件实例
 export function Chart(props: ChartProps): JSX.Element {
-  const { data, schemaData, searchValue, searchData, xAxis, yAxis, symbol, logAxis, hl_up_data, hl_low_data, hl_zero_data, hl_newHigh_data, hl_newLow_data, hl_newStock_data } = props
+  const { data, schemaData, searchValue, searchData, xAxis, yAxis, symbol, logAxis, hl_newStock_data, hl_up_data, hl_low_data, hl_newHigh30_data, hl_newLow30_data, hl_newHigh60_data, hl_newLow60_data } = props
 
   // debugger
   // 创建一个 ref 来引用 ECharts 实例
@@ -184,6 +185,7 @@ export function Chart(props: ChartProps): JSX.Element {
         symbolSize: function (value: number[]) {
           return Math.sqrt(Math.abs(value[4])) * 2 + 1
         },
+        // symbolSize: 2,
         emphasis: {
           itemStyle: {
             color: "#fff",
@@ -194,6 +196,7 @@ export function Chart(props: ChartProps): JSX.Element {
           color: function (params: { data: number[] }) {
             return params.data[4] > 0 ? "#ef4444" : "#22c55e"
           },
+          opacity: 0.68,
         },
         // 选中状态
         // select: {
@@ -206,6 +209,24 @@ export function Chart(props: ChartProps): JSX.Element {
         // selectedMode: "single",
         progressive: 5500, //设置渲染每一帧的图形数量，如果数据量巨大，这个值可以小一点，否则会卡顿
       },
+      ...(hl_newStock_data && hl_newStock_data.length > 0
+        ? [
+          {
+            data: hl_newStock_data,
+            type: "effectScatter",
+            // symbolSize: 8,
+            itemStyle: {
+              color: "#7c3aed",
+            },
+            rippleEffect: {
+              brushType: "fill",
+              color: "#c4b5fd",
+              scale: 4,
+              number: 2,
+            },
+          },
+        ]
+        : []),
       ...(hl_up_data && hl_up_data.length > 0
         ? [
           {
@@ -245,28 +266,10 @@ export function Chart(props: ChartProps): JSX.Element {
           },
         ]
         : []),
-      ...(hl_zero_data && hl_zero_data.length > 0
+      ...(hl_newHigh30_data && hl_newHigh30_data.length > 0
         ? [
           {
-            data: hl_zero_data,
-            type: "effectScatter",
-            // symbolSize: 8,
-            itemStyle: {
-              color: "#6b7280",
-            },
-            rippleEffect: {
-              brushType: "fill",
-              color: "#d1d5db",
-              scale: 4,
-              number: 2,
-            },
-          },
-        ]
-        : []),
-      ...(hl_newHigh_data && hl_newHigh_data.length > 0
-        ? [
-          {
-            data: hl_newHigh_data,
+            data: hl_newHigh30_data,
             type: "effectScatter",
             // symbolSize: 8,
             itemStyle: {
@@ -281,10 +284,10 @@ export function Chart(props: ChartProps): JSX.Element {
           },
         ]
         : []),
-      ...(hl_newLow_data && hl_newLow_data.length > 0
+      ...(hl_newLow30_data && hl_newLow30_data.length > 0
         ? [
           {
-            data: hl_newLow_data,
+            data: hl_newLow30_data,
             type: "effectScatter",
             // symbolSize: 8,
             itemStyle: {
@@ -299,18 +302,36 @@ export function Chart(props: ChartProps): JSX.Element {
           },
         ]
         : []),
-      ...(hl_newStock_data && hl_newStock_data.length > 0
+      ...(hl_newHigh60_data && hl_newHigh60_data.length > 0
         ? [
           {
-            data: hl_newStock_data,
+            data: hl_newHigh60_data,
             type: "effectScatter",
             // symbolSize: 8,
             itemStyle: {
-              color: "#7c3aed",
+              color: "#0891b2",
             },
             rippleEffect: {
               brushType: "fill",
-              color: "#c4b5fd",
+              color: "#67e8f9",
+              scale: 4,
+              number: 2,
+            },
+          },
+        ]
+        : []),
+      ...(hl_newLow60_data && hl_newLow60_data.length > 0
+        ? [
+          {
+            data: hl_newLow60_data,
+            type: "effectScatter",
+            // symbolSize: 8,
+            itemStyle: {
+              color: "#ea580c",
+            },
+            rippleEffect: {
+              brushType: "fill",
+              color: "#fdba74",
               scale: 4,
               number: 2,
             },
@@ -368,13 +389,37 @@ export function Chart(props: ChartProps): JSX.Element {
     data,
     searchValue,
     symbol,
+    hl_newStock_data,
     hl_up_data,
     hl_low_data,
-    hl_zero_data,
-    hl_newHigh_data,
-    hl_newLow_data,
-    hl_newStock_data,
+    hl_newHigh30_data,
+    hl_newLow30_data,
+    hl_newHigh60_data,
+    hl_newLow60_data
   ])
+
+  // 处理点击事件并且跳转到相应的百度搜索页面
+  chartRef.current?.getEchartsInstance().on("click", (params: any) => {
+    var prefix = ""
+    const exchangeCode = params.data[2].slice(0, 2);
+    if (['00', '30'].includes(exchangeCode)) {
+      prefix = 'sz';
+    } else if (['60', '68'].includes(exchangeCode)) {
+      prefix = 'sh';
+    } else if (['43', '83', '87', '88'].includes(exchangeCode)) {
+      prefix = 'bj/';
+    } else {
+      prefix = 'sh';
+    }
+    //https://quote.eastmoney.com/sz300418.html
+    const url = `https://quote.eastmoney.com/${prefix}${params.data[2]}.html`
+    console.log(exchangeCode, url)
+
+    // https://stockpage.10jqka.com.cn/601985/
+    const ths_url = `https://stockpage.10jqka.com.cn/${params.data[2]}/`
+    window.open(ths_url, "_blank")
+  });
+
 
   return (
     <>

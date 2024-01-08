@@ -20,12 +20,13 @@ interface DataTableFacetedFilterProps {
 }
 
 const options = [
+  { value: "hl_newStock", label: "新股", icon: {} },
   { value: "hl_up", label: "涨停", icon: {} },
   { value: "hl_low", label: "跌停", icon: {} },
-  // { value: "hl_zero", label: "平盘", icon: {} },
-  { value: "hl_newHigh", label: "60日新高", icon: {} },
-  { value: "hl_newLow", label: "60日新低", icon: {} },
-  { value: "hl_newStock", label: "新股", icon: {} },
+  { value: "hl_newHigh30", label: "30日新高", icon: {} },
+  { value: "hl_newLow30", label: "30日新低", icon: {} },
+  { value: "hl_newHigh60", label: "60日新高", icon: {} },
+  { value: "hl_newLow60", label: "60日新低", icon: {} },
 ]
 
 export function CheckView({
@@ -77,7 +78,7 @@ export function CheckView({
                     variant="secondary"
                     className="rounded-sm px-1 font-normal"
                   >
-                    {selectedValues.size} selected
+                    {selectedValues.size} 类
                   </Badge>
                 ) : (
                   options
@@ -117,6 +118,10 @@ export function CheckView({
                     <CheckIcon className={cn("h-4 w-4")} />
                   </div>
                   <span>{option.label}</span>
+                  <span>
+                    {/* 两个嵌套的圆形 */}
+
+                  </span>
                 </CommandItem>
               ))}
             </CommandGroup>

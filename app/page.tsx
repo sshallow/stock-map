@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="flex min-h-screen flex-col items-center justify-between p-24" >
       {/* <NavBar /> */}
       <section className='py-24 flex flex-col items-center text-center gap-8'>
         <h1 className='text-4xl font-bold'>穿透迷雾,洞悉股海</h1>
@@ -25,7 +25,7 @@ export default function Home() {
         </div> */}
 
       </section>
-      <div className='flex gap-6 items-center'>
+      <div className='flex gap-6 items-center' >
         {/* <Button variant={"secondary"}>
           开始使用
         </Button> */}
