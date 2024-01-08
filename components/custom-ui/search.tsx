@@ -11,7 +11,7 @@ export function Search({ onChange }: SearchProps) {
       <Input
         type="search"
         placeholder="股票代码..."
-        className="md:w-[100px] lg:w-[250px]"
+        className="md:w-[100px] lg:w-[250px] rounded-none border-0 border-b focus-visible:ring-0"
         onChange={onChange}
       />
     </div>

@@ -4,9 +4,12 @@
 import ReactECharts from "echarts-for-react";
 import { useEffect, useMemo, useRef } from "react";
 
+import { Search } from "@/components/custom-ui/search";
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
+import { useDebouncedCallback } from "use-debounce";
 import { TooltipCard } from "./tooltip";
+
 
 // Props 接口定义
 interface ChartProps {
@@ -421,19 +424,32 @@ export function Chart(props: ChartProps): JSX.Element {
   });
 
 
+  const onSearch = useDebouncedCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(event.target.value)
+  }, 300
+  )
+
   return (
     <>
       <div className=" flex h-full flex-col items-center justify-between space-y-2">
         <div className="w-full flex-1">
-          {/* <div
-            className={clsx("grid h-full items-stretch gap-6", {
-              "md:grid-cols-[1fr_200px]": hl_up_data?.length > 0,
-            })}
-          > */}
+          <div className="absolute w-full pt-1 px-2">
+            <div className="relative flex items-center justify-between text-muted-foreground">
+              <h2 className="font-bold tracking-tight md:text-xl">
+                2024-01-07
+              </h2>
+              <div className="flex items-center space-x-2">
+                <Search onChange={onSearch} />
+                {/* <Button>搜索</Button> */}
+              </div>
+            </div>
+          </div>
 
           <ReactECharts
             option={optionData}
-            style={{ height: "100%", width: "100%" }}
+            // style={{ height: "100%", width: "100%" }}
+            style={{ position: "relative", top: "40px", height: "calc(100% - 40px)", width: "100%" }}
+
             ref={chartRef} // 将 ref 传递给 ReactECharts 组件
           />
 

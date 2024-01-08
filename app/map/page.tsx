@@ -274,18 +274,18 @@ export default function MapPage() {
                             ✨市场星图
                             {selectedDate && selectedDate.length > 8 && (<span className="pl-2 text-lg">{selectedDate}</span>)}
                         </h2>
-                        <div className="flex items-center space-x-2">
+                        {/* <div className="flex items-center space-x-2">
                             <Search onChange={onSearch} />
                             <Button>搜索</Button>
-                        </div>
+                        </div> */}
                     </div>
                     {marketData && marketData.length > 0 && (
                         <div className="space-y-4">
                             <HeaderCard marketData={marketData} />
                         </div>
                     )}
-                    <div className="py-4 ">
-                        <div className="flex flex-wrap items-center gap-4">
+                    <div className="my-4">
+                        <div className="hidden flex flex-wrap items-center gap-4">
                             {/* <TeamSwitcher /> */}
                             {/* <div> */}
                             <PresetSelector
@@ -326,33 +326,36 @@ export default function MapPage() {
                                 <DatePicker onDateChange={handleDateChange} />
                             </div>
                             <div className="ml-auto">
-                                <CheckView
-                                    title="高亮显示"
-                                    onSelectedChange={handleCheckChange}
-                                />
+                                <div className="flex items-center space-x-2">
+                                    <Search onChange={onSearch} />
+                                    <Button>搜索</Button>
+                                </div>
                             </div>
 
                         </div>
                     </div>
-                    <div className="relative  w-full pb-[70%]">
-                        <Card className="absolute inset-0 overflow-visible">
-                            {/* {
+                    {/* <Separator className="my-4" /> */}
+
+                    <div className="grid h-full items-stretch gap-6 md:grid-cols-[1fr_250px]">
+                        <div className="relative  w-full pb-[60%]">
+                            <Card className="absolute inset-0 overflow-visible">
+                                {/* {
                                 (data && data.length > 0) ? ( */}
-                            <Chart
-                                data={data ? data : []}
-                                schemaData={schemaData}
-                                searchValue={searchValue}
-                                symbol={symbol}
-                                logAxis={logAxis}
-                                hl_newStock_data={hl_newStock_data}
-                                hl_up_data={hl_up_data}
-                                hl_low_data={hl_low_data}
-                                hl_newHigh30_data={hl_newHigh30_data}
-                                hl_newLow30_data={hl_newLow30_data}
-                                hl_newHigh60_data={hl_newHigh60_data}
-                                hl_newLow60_data={hl_newLow60_data}
-                            />
-                            {/* ) :
+                                <Chart
+                                    data={data ? data : []}
+                                    schemaData={schemaData}
+                                    searchValue={searchValue}
+                                    symbol={symbol}
+                                    logAxis={logAxis}
+                                    hl_newStock_data={hl_newStock_data}
+                                    hl_up_data={hl_up_data}
+                                    hl_low_data={hl_low_data}
+                                    hl_newHigh30_data={hl_newHigh30_data}
+                                    hl_newLow30_data={hl_newLow30_data}
+                                    hl_newHigh60_data={hl_newHigh60_data}
+                                    hl_newLow60_data={hl_newLow60_data}
+                                />
+                                {/* ) :
                                     (
                                         <div className="absolute inset-0 flex items-center justify-center">
                                             <div className="flex flex-col items-center space-y-4">
@@ -378,7 +381,55 @@ export default function MapPage() {
                                     )
                             } */}
 
-                        </Card>
+                            </Card>
+                        </div>
+                        <div>
+                            <div className="hidden flex-col space-y-4 sm:flex md:order-2">
+                                <div>
+                                    <DatePicker onDateChange={handleDateChange} />
+                                </div>
+                                <PresetSelector
+                                    title="横轴"
+                                    onPresetSelect={handleXAxisSelect}
+                                    defaultFactor={defaultX}
+                                />
+                                <PresetSelector
+                                    title="纵轴"
+                                    onPresetSelect={handleYAxisSelect}
+                                    defaultFactor={defaultY}
+                                />
+
+                                <Tabs
+                                    defaultValue="normal"
+                                    className="flex-1"
+                                    onValueChange={handleTabChange}
+                                >
+                                    <TabsList className="grid grid-cols-2">
+                                        <TabsTrigger value="normal">普通坐标</TabsTrigger>
+                                        <TabsTrigger value="log">对数坐标</TabsTrigger>
+                                    </TabsList>
+                                </Tabs>
+                                <Select
+                                    defaultValue="circle"
+                                    onValueChange={handleSymbolChange}
+                                >
+                                    <SelectTrigger className=" w-[110px]">
+                                        <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="rect">星星</SelectItem>
+                                        <SelectItem value="circle">圆点</SelectItem>
+                                    </SelectContent>
+                                </Select>
+
+                                <div >
+                                    <CheckView
+                                        title="高亮显示"
+                                        onSelectedChange={handleCheckChange}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     {/* <Separator className="my-4" /> */}
 
