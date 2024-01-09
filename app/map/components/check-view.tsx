@@ -1,7 +1,8 @@
 "use client";
 
 import { CheckIcon, SunIcon } from "@radix-ui/react-icons";
-import * as React from "react";
+// import * as React from "react";
+import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 interface DataTableFacetedFilterProps {
   title?: string
   onSelectedChange: (selectedValues: Set<string>) => void
+  onClear?: boolean;
 }
 
 const options = [
@@ -32,8 +34,9 @@ const options = [
 export function CheckView({
   title,
   onSelectedChange,
+  onClear,
 }: DataTableFacetedFilterProps) {
-  const [selectedValues, setSelectedValues] = React.useState(new Set<string>())
+  const [selectedValues, setSelectedValues] = useState(new Set<string>())
 
   const handleSelect = (value: string) => {
     console.log("选中的值:", value)
@@ -52,6 +55,13 @@ export function CheckView({
     setSelectedValues(newSelectedValues)
     onSelectedChange(newSelectedValues)
   }
+
+  useMemo(() => {
+    if (onClear) {
+      console.log("内部 clear")
+      handleClear();
+    }
+  }, [onClear]);
 
   return (
     <Popover>

@@ -18,13 +18,13 @@ import { Chart, Schema } from "./components/react-echarts";
 import { SearchListTable, Stock } from './components/search-list-table';
 import { Factor, defaultX, defaultY } from "./data/factors";
 
-interface marketDataProp {
-    data: HeaderCardProps[],
-    trans_dt: string
-}
+// interface marketDataProp {
+//     data: HeaderCardProps[],
+//     trans_dt: string
+// }
 
 const getMarketData = async (date: string | null) => {
-    let url = `http://smartpayt.com/prod-api/factor/paper/market_sky`;
+    let url = `https://smartpayt.com/prod-api/factor/paper/market_sky`;
     if (date) {
         url += `?transDt=${date}`;
     }
@@ -69,10 +69,12 @@ const getData = async (x: string, y: string, param: string[], date: string | nul
 };
 
 export default function MapPage() {
+    const [onClear, setOnClear] = useState(false);
     const [selectedDate, setSelectedDate] = useState<string>();
 
     // 大盘数据
     const [marketData, setMarketData] = useState<HeaderCardProps[]>()
+    const [marketDate, setMarketDate] = useState<string>("")
 
     // 搜索
     const [searchValue, setSearchValue] = useState("")
@@ -218,6 +220,7 @@ export default function MapPage() {
         // setYAxisSelected(defaultY)
         // setSymbol("circle")
         // setLogAxis(false)
+        setOnClear(true);
         setSelectedChecks(new Set<string>())
         setHl_newStock_data([])
         setHl_up_data([])
@@ -230,6 +233,10 @@ export default function MapPage() {
     }
 
 
+    const handleExternalClear = () => {
+        // 外部清除逻辑
+        console.log("外部清除逻辑")
+    };
 
     useEffect(() => {
         // 请求大盘数据
@@ -237,6 +244,7 @@ export default function MapPage() {
             const data = await getMarketData(selectedDate ? selectedDate : null);
             if (data) {
                 setMarketData(data.data);
+                setMarketDate(data.trans_dt)
             }
         }
 
@@ -250,6 +258,7 @@ export default function MapPage() {
             );
             if (data) {
                 handleClear()
+                handleExternalClear()
                 setData(data.data);
                 setSchemaData(data.schema);
             }
@@ -342,9 +351,10 @@ export default function MapPage() {
                                 {/* {
                                 (data && data.length > 0) ? ( */}
                                 <Chart
+                                    date={marketDate}
                                     data={data ? data : []}
                                     schemaData={schemaData}
-                                    searchValue={searchValue}
+                                    // searchValue={searchValue}
                                     symbol={symbol}
                                     logAxis={logAxis}
                                     hl_newStock_data={hl_newStock_data}
@@ -426,6 +436,7 @@ export default function MapPage() {
                                     <CheckView
                                         title="高亮显示"
                                         onSelectedChange={handleCheckChange}
+                                        onClear={onClear}
                                     />
                                 </div>
                             </div>

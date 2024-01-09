@@ -13,7 +13,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import Link from "next/link"
 import * as React from "react"
 
 import { Button } from "@/components/ui/button"
@@ -82,20 +81,24 @@ export const columns: ColumnDef<Stock>[] = [
   },
   {
     accessorKey: "type",
-    header: "股票",
+    header: "类型",
     cell: ({ row }) => {
       const type = row.getValue("type") as string;
       const { label, className } = typeToLabelAndStyle[type] || { label: type, className: "" };
       return <div className={`capitalize text-white text-center rounded p-1 text-sm font-bold w-10 ${className}`}>{label}</div>;
     },
   },
+
   {
     accessorKey: "sec_nm",
-    header: "代码",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("sec_nm")}</div>
-      // <div className="capitalize">{row.getValue("sec_nm")}{row.getValue("sec_cd")}</div>
-    ),
+    header: "名称/代码",
+    cell: ({ row }) => {
+      const stock = row.original
+      return (
+        // <div className="capitalize">{row.getValue("sec_nm")}</div>
+        <div className="capitalize">{stock.sec_nm} ({stock.sec_cd})</div>
+      )
+    },
   },
 
   {
@@ -150,21 +153,31 @@ export const columns: ColumnDef<Stock>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       const payment = row.original
-
       return (
-        <Button variant="link">
-          {" "}
-          <Link
-            href="https://quote.eastmoney.com/sh600519.html"
-            target="_blank"
-          >
-            行情
-          </Link>
+        <Button variant="link" onClick={() => gotoDatail(payment.sec_cd)}>
+          查看行情
         </Button>
       )
     },
   },
 ]
+
+function gotoDatail(code: string) {
+  var prefix = ""
+  const exchangeCode = code.slice(0, 2);
+  if (['00', '30'].includes(exchangeCode)) {
+    prefix = 'sz';
+  } else if (['60', '68'].includes(exchangeCode)) {
+    prefix = 'sh';
+  } else if (['43', '83', '87', '88'].includes(exchangeCode)) {
+    prefix = 'bj/';
+  } else {
+    prefix = 'sh';
+  }
+  // https://stockpage.10jqka.com.cn/601985/
+  const ths_url = `https://stockpage.10jqka.com.cn/${code}/`
+  window.open(ths_url, "_blank")
+}
 
 // export function SearchListTable(data: Stock[]) {
 export function SearchListTable({ data }: { data: Stock[] }) {

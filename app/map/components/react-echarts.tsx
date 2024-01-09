@@ -2,9 +2,8 @@
 "use client";
 
 import ReactECharts from "echarts-for-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { Search } from "@/components/custom-ui/search";
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { useDebouncedCallback } from "use-debounce";
@@ -13,9 +12,10 @@ import { TooltipCard } from "./tooltip";
 
 // Props 接口定义
 interface ChartProps {
+  date?: string
   data?: number[][] // 假设数据是一个二维数组，例如 [[x1, y1], [x2, y2], ...]
   schemaData: Schema[]
-  searchValue?: string
+  // searchValue?: string
   searchData?: number[][]
   xAxis?: string
   yAxis?: string
@@ -69,7 +69,10 @@ function generateTooltip(schemaData: Schema[], params: { data: number[] }): stri
 
 // 组件实例
 export function Chart(props: ChartProps): JSX.Element {
-  const { data, schemaData, searchValue, searchData, xAxis, yAxis, symbol, logAxis, hl_newStock_data, hl_up_data, hl_low_data, hl_newHigh30_data, hl_newLow30_data, hl_newHigh60_data, hl_newLow60_data } = props
+  const { date, data, schemaData, searchData, xAxis, yAxis, symbol, logAxis, hl_newStock_data, hl_up_data, hl_low_data, hl_newHigh30_data, hl_newLow30_data, hl_newHigh60_data, hl_newLow60_data } = props
+
+  // 搜索
+  const [searchValue, setSearchValue] = useState("")
 
   // debugger
   // 创建一个 ref 来引用 ECharts 实例
@@ -426,6 +429,7 @@ export function Chart(props: ChartProps): JSX.Element {
 
   const onSearch = useDebouncedCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     console.log(event.target.value)
+    // setSearchValue(event.target.value)
   }, 300
   )
 
@@ -436,10 +440,10 @@ export function Chart(props: ChartProps): JSX.Element {
           <div className="absolute w-full pt-1 px-2">
             <div className="relative flex items-center justify-between text-muted-foreground">
               <h2 className="font-bold tracking-tight md:text-xl">
-                2024-01-07
+                {date}
               </h2>
               <div className="flex items-center space-x-2">
-                <Search onChange={onSearch} />
+                {/* <Search onChange={onSearch} /> */}
                 {/* <Button>搜索</Button> */}
               </div>
             </div>
