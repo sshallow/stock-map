@@ -35,7 +35,7 @@ const getTargetFA = async (fax: string,date: string | null) => {
     }
 }
 
-function mergeDataAndSchema(originalData, originalSchema, dataToMerge, column) {
+function mergeDataAndSchema(originalData?: any, originalSchema?: any, dataToMerge?: any, column?: any) {
     debugger
     // 从原始数据和模式中移除之前添加的以 "fa" 开头的列和模式信息
     const faRegex = /^fa/;
