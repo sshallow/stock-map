@@ -19,6 +19,8 @@ import { SearchListTable, Stock } from './components/search-list-table';
 import { Factor, defaultX, defaultY } from "./data/factors";
 import {Separator} from "@/components/ui/separator";
 import {constants} from "fs";
+import {any} from "prop-types";
+import ignore from "ignore";
 
 const getTargetFA = async (fax: string,date: string | null) => {
     let url = `https://smartpayt.com/prod-api/factor/paper/sky?x=f1&y=f1&param=${fax}&transDt=${date}`
@@ -39,30 +41,32 @@ function mergeDataAndSchema(originalData?: any, originalSchema?: any, dataToMerg
     debugger
     // 从原始数据和模式中移除之前添加的以 "fa" 开头的列和模式信息
     const faRegex = /^fa/;
-    originalData = originalData.map(row => row.filter((_, i) => !originalSchema[i].name.match(faRegex)));
-    originalSchema = originalSchema.filter(item => !item.name.match(faRegex));
+    // @ts-ignore
+    originalData = originalData.map((row) => row.filter((item, i) => !originalSchema[i].name.match(faRegex)));
+    originalSchema = originalSchema.filter((item: Schema) => !item.name.match(faRegex));
 
 
     // 在 dataToMerge 中找到要合并的列索引
-    const columnIndex = dataToMerge.schema.findIndex(item => item.name === column);
+    const columnIndex = dataToMerge.schema.findIndex((item: Schema) => item.name === column);
 
     // 在 dataToMerge 中找到 sec_cd 列的索引
-    const secCdIndex2 = dataToMerge.schema.findIndex(item => item.name === 'sec_cd');
+    const secCdIndex2 = dataToMerge.schema.findIndex((item: any) => item.name === 'sec_cd');
 
     // 在 originalData 中找到 sec_cd 列的索引
-    const secCdIndex1 = originalSchema.findIndex(item => item.name === 'sec_cd');
+    const secCdIndex1 = originalSchema.findIndex((item: any) => item.name === 'sec_cd');
 
     // 提取出要合并的列数据
-    const columnToMerge = dataToMerge.data.map(row => row[columnIndex]);
+    const columnToMerge = dataToMerge.data.map((row: any) => row[columnIndex]);
 
     // 提取出要合并的模式信息
-    const schemaToMerge = dataToMerge.schema.find(item => item.name === column);
+    const schemaToMerge = dataToMerge.schema.find((item: any) => item.name === column);
 
     // 遍历 originalData 的每一行
+    // @ts-ignore
     originalData.forEach((row, i) => {
         const secCd = row[secCdIndex1];
         // 在 dataToMerge 中查找对应的值
-        const mergeValue = dataToMerge.data.find(row2 => row2[secCdIndex2] === secCd)?.[columnIndex];
+        const mergeValue = dataToMerge.data.find((row2: any) => row2[secCdIndex2] === secCd)?.[columnIndex];
         // 如果找到了,就将值插入到 originalData 的这一行
         if (mergeValue !== undefined) {
             row.push(mergeValue);
