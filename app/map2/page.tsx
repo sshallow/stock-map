@@ -22,7 +22,7 @@ interface ApiResponse {
 const getTBLData = async (date: string | null) => {
     let url = `https://smartpayt.com/python-api/data/`;
     // let url = `https://smartpayt.com/python-api/alldata/`;
-    // let url = `http://localhost:5001/alldata/`;
+    // let url = `http://127.0.0.1:5001/alldata/`;
     if (date) {
         url += date;
     }
@@ -33,6 +33,25 @@ const getTBLData = async (date: string | null) => {
         console.error("请求TBL数据失败", err);
         return null;
     }
+}
+
+function countObjectsBySecCd(arr) {
+    const counts = {};
+
+    for (const obj of arr) {
+        const sec_cd = obj.sec_cd;
+        counts[sec_cd] = (counts[sec_cd] || 0) + 1;
+    }
+
+    return counts;
+}
+
+function filterCounts(counts, threshold) {
+    const filtered = Object.entries(counts)
+        .filter(([_, value]) => value > threshold)
+        .map(([key, value]) => [key, value]);
+
+    return Object.fromEntries(filtered);
 }
 
 const BarChartPage: React.FC = () => {
@@ -84,6 +103,13 @@ const BarChartPage: React.FC = () => {
 
 // 过滤出 MV_ratio 在 0.24 到 0.25 范围内的数据
                 const filteredData = data.filter(item => item.MV_ratio >= 0.23 && item.MV_ratio <= 0.26);
+
+                const counts = countObjectsBySecCd(filteredData);
+                console.log(counts);
+
+                // counts 找出大于 3 的
+                const filteredCounts = filterCounts(counts, 3);
+                console.log(filteredCounts);
 
 // 构造集合并计算出现次数
 

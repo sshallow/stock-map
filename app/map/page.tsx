@@ -17,11 +17,87 @@ import { PresetSelector } from "./components/preset-selector";
 import { Chart, Schema } from "./components/react-echarts";
 import { SearchListTable, Stock } from './components/search-list-table';
 import { Factor, defaultX, defaultY } from "./data/factors";
+import {Separator} from "@/components/ui/separator";
+import {constants} from "fs";
 
-// interface marketDataProp {
-//     data: HeaderCardProps[],
-//     trans_dt: string
-// }
+const getTargetFA = async (fax,date: string | null) => {
+    let url = `https://smartpayt.com/prod-api/factor/paper/sky?x=f1&y=f1&param=${fax}&transDt=${date}`
+
+    try {
+        const response = await requestClient({ url, method: "GET" });
+        if (response.data.data.length === 0) {
+            return null;
+        }
+        return { date, data: response.data.data, schema: response.data.schema };
+    } catch (err) {
+        console.error("请求 fax 数据失败", err);
+        return null;
+    }
+}
+
+function mergeData1(data1, data2) {
+    // 在 data1 中获取第二列数据
+    const column1 = data1.data.map(row => row[1]);
+
+    // 在 data2 中找到 sec_cd 列的索引
+    const secCdIndex2 = data2.schema.findIndex(item => item.name === 'sec_cd');
+
+    // 遍历 data2 的每一行
+    data2.data.forEach((row, i) => {
+        const secCd = row[secCdIndex2];
+        // 在 column1 中查找对应的值
+        const value = column1.find((val, j) => data1.data[j][secCdIndex2] === secCd);
+        // 如果找到了,就将值插入到 data2 的这一行
+        if (value !== undefined) {
+            row.push(value);
+        }
+    });
+
+    return data2;
+}
+function mergeDataAndSchema(originalData, originalSchema, dataToMerge, column) {
+    debugger
+    // 从原始数据和模式中移除之前添加的以 "fa" 开头的列和模式信息
+    const faRegex = /^fa/;
+    originalData = originalData.map(row => row.filter((_, i) => !originalSchema[i].name.match(faRegex)));
+    originalSchema = originalSchema.filter(item => !item.name.match(faRegex));
+
+
+    // 在 dataToMerge 中找到要合并的列索引
+    const columnIndex = dataToMerge.schema.findIndex(item => item.name === column);
+
+    // 在 dataToMerge 中找到 sec_cd 列的索引
+    const secCdIndex2 = dataToMerge.schema.findIndex(item => item.name === 'sec_cd');
+
+    // 在 originalData 中找到 sec_cd 列的索引
+    const secCdIndex1 = originalSchema.findIndex(item => item.name === 'sec_cd');
+
+    // 提取出要合并的列数据
+    const columnToMerge = dataToMerge.data.map(row => row[columnIndex]);
+
+    // 提取出要合并的模式信息
+    const schemaToMerge = dataToMerge.schema.find(item => item.name === column);
+
+    // 遍历 originalData 的每一行
+    originalData.forEach((row, i) => {
+        const secCd = row[secCdIndex1];
+        // 在 dataToMerge 中查找对应的值
+        const mergeValue = dataToMerge.data.find(row2 => row2[secCdIndex2] === secCd)?.[columnIndex];
+        // 如果找到了,就将值插入到 originalData 的这一行
+        if (mergeValue !== undefined) {
+            row.push(mergeValue);
+        } else {
+            // 如果没找到,插入一个空值
+            row.push(null);
+        }
+    });
+
+    // 将模式信息添加到 originalSchema 中
+    originalSchema.push(schemaToMerge);
+
+    return { data1: originalData, schema1: originalSchema };
+}
+
 
 const getMarketData = async (date: string | null) => {
     let url = `https://smartpayt.com/prod-api/factor/paper/market_sky`;
@@ -44,6 +120,7 @@ const defaultParam: string[] = [
     "TBL", // 涨跌停6
     "PBR30", // 30 日新高7
     "PBR60", // 60 日新高8
+    "f1",// 上涨4
 ]
 
 const getData = async (x: string, y: string, param: string[], date: string | null) => {
@@ -68,7 +145,7 @@ const getData = async (x: string, y: string, param: string[], date: string | nul
     }
 };
 
-export default function MapPage() {
+export default function MapPage(message?: any) {
     const [onClear, setOnClear] = useState(false);
     const [selectedDate, setSelectedDate] = useState<string>();
 
@@ -91,6 +168,8 @@ export default function MapPage() {
     const [logAxis, setLogAxis] = useState(false)
     // 高亮显示
     const [selectedChecks, setSelectedChecks] = useState(new Set<string>())
+    // 未来几日收益率
+    const [fa_x, setFa_x] = useState("f1") // 默认为圆点
 
     const [hl_newStock_data, setHl_newStock_data] = useState<number[][]>([])
     const [hl_up_data, setHl_up_data] = useState<number[][]>([])
@@ -115,6 +194,7 @@ export default function MapPage() {
             const formattedDate = format(selectedDate, 'yyyy-MM-dd'); // 格式化日期为 'yyyy-MM-dd' 格式
             console.log(formattedDate)
             setSelectedDate(formattedDate);
+            setFa_x("f1")
         }
     }
 
@@ -131,6 +211,80 @@ export default function MapPage() {
 
     const handleSymbolChange = (value: string) => {
         setSymbol(value)
+    }
+
+    const handleFAChange = (value: string) => {
+        //
+        if (value==="f1"){
+            let originalData =data
+            let originalSchema =schemaData
+
+            // 从原始数据和模式中移除之前添加的以 "fa" 开头的列和模式信息
+            const faRegex = /^fa/;
+            originalData = originalData.map(row => row.filter((_, i) => !originalSchema[i].name.match(faRegex)));
+            originalSchema = originalSchema.filter(item => !item.name.match(faRegex));
+
+            console.log(originalData,originalSchema)
+
+            setData(originalData);
+            setSchemaData(originalSchema);
+            setFa_x(value)
+            return;
+        }
+        // 根据值，选择 x 日之后的日期
+        const match = value.match(/\d+/);
+        let days = 0;
+
+        if (match) {
+            days = parseInt(match[0], 10);
+        }
+
+        if (selectedDate) {
+            // 将字符串转换为 Date 对象
+            const date = new Date(selectedDate);
+
+            // 添加指定天数
+            date.setDate(date.getDate() + days);
+
+            // 将 Date 对象转换回字符串
+            const newDate = date.toISOString().slice(0, 10);
+
+            console.log(newDate)
+            // 获取昨天的日期
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            yesterday.setHours(0, 0, 0, 0); // 将时间设置为当天的00:00:00
+
+            const newDateObj = new Date(newDate);
+
+            if (newDateObj > yesterday) {
+                alert(selectedDate+'没有未来'+value);
+                return
+            }
+            // 请求
+            const getFa = async () => {
+                const fadata = await getTargetFA(value,newDate);
+                if (fadata) {
+                    // 合并
+                    debugger
+                    const { data1, schema1 } = mergeDataAndSchema(data, schemaData, fadata,value);
+                    console.log(data1,schema1)
+
+                    setData(data1);
+                    setSchemaData(schema1);
+                }else {
+                    alert(selectedDate+'没有未来'+value);
+                    return
+                }
+            }
+            getFa();
+            setFa_x(value)
+
+        } else {
+            alert(selectedDate+'没有未来'+value);
+            return
+        }
+
     }
 
     // 高亮方法
@@ -438,6 +592,25 @@ export default function MapPage() {
                                         onSelectedChange={handleCheckChange}
                                         onClear={onClear}
                                     />
+                                </div>
+                                <Separator/>
+                                <div>圆点面积</div>
+                                <div >
+                                    <Select
+                                        defaultValue="f1"
+                                        value={fa_x}
+                                        onValueChange={handleFAChange}
+                                    >
+                                        <SelectTrigger className=" flex-1">
+                                            <SelectValue placeholder="Select" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="f1">当日涨幅</SelectItem>
+                                            <SelectItem value="fa1">未来 1 日涨幅</SelectItem>
+                                            <SelectItem value="fa3">未来 3 日涨幅</SelectItem>
+                                            <SelectItem value="fa5">未来 5 日涨幅</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
                         </div>

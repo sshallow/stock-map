@@ -47,7 +47,7 @@ function generateTooltip(schemaData: Schema[], params: { data: number[] }): stri
     <TooltipCard
       name={params.data[3].toString()}
       code={params.data[2].toString()}
-      increase={params.data[4].toString()}
+      increase={(params.data[10]?params.data[10]:params.data[9]).toString()}
       firstName={schemaData[0].text}
       firstValue={params.data[0].toString()}
       firstUnit={schemaData[0].unit}
@@ -189,7 +189,7 @@ export function Chart(props: ChartProps): JSX.Element {
         type: "scatter",
         symbol: symbol,
         symbolSize: function (value: number[]) {
-          return Math.sqrt(Math.abs(value[4])) * 2 + 1
+          return Math.sqrt(Math.abs((value[10]?value[10]:value[9]))) * 2 + 1
         },
         // symbolSize: 2,
         emphasis: {
@@ -200,7 +200,7 @@ export function Chart(props: ChartProps): JSX.Element {
         },
         itemStyle: {
           color: function (params: { data: number[] }) {
-            return params.data[4] > 0 ? "#ef4444" : "#22c55e"
+            return (params.data[10]?params.data[10]:params.data[9]) > 0 ? "#ef4444" : "#22c55e"
           },
           opacity: 0.68,
         },
@@ -240,7 +240,7 @@ export function Chart(props: ChartProps): JSX.Element {
             type: "effectScatter",
             // symbolSize: 8,
             symbolSize: function (value: number[]) {
-              return Math.sqrt(Math.abs(value[4])) * 2 + 1
+              return Math.sqrt(Math.abs((value[10]?value[10]:value[9]))) * 2 + 1
             },
             itemStyle: {
               color: "#dc2626",
