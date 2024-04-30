@@ -20,7 +20,7 @@ import { Factor, defaultX, defaultY } from "./data/factors";
 import {Separator} from "@/components/ui/separator";
 import {constants} from "fs";
 
-const getTargetFA = async (fax,date: string | null) => {
+const getTargetFA = async (fax: string,date: string | null) => {
     let url = `https://smartpayt.com/prod-api/factor/paper/sky?x=f1&y=f1&param=${fax}&transDt=${date}`
 
     try {
