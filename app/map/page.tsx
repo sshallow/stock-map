@@ -35,26 +35,6 @@ const getTargetFA = async (fax: string,date: string | null) => {
     }
 }
 
-function mergeData1(data1, data2) {
-    // 在 data1 中获取第二列数据
-    const column1 = data1.data.map(row => row[1]);
-
-    // 在 data2 中找到 sec_cd 列的索引
-    const secCdIndex2 = data2.schema.findIndex(item => item.name === 'sec_cd');
-
-    // 遍历 data2 的每一行
-    data2.data.forEach((row, i) => {
-        const secCd = row[secCdIndex2];
-        // 在 column1 中查找对应的值
-        const value = column1.find((val, j) => data1.data[j][secCdIndex2] === secCd);
-        // 如果找到了,就将值插入到 data2 的这一行
-        if (value !== undefined) {
-            row.push(value);
-        }
-    });
-
-    return data2;
-}
 function mergeDataAndSchema(originalData, originalSchema, dataToMerge, column) {
     debugger
     // 从原始数据和模式中移除之前添加的以 "fa" 开头的列和模式信息
