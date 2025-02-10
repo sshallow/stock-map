@@ -23,7 +23,7 @@ import {any} from "prop-types";
 import ignore from "ignore";
 
 const getTargetFA = async (fax: string,date: string | null) => {
-    let url = `https://smartpayt.com/prod-api/factor/paper/sky?x=f1&y=f1&param=${fax}&transDt=${date}`
+    let url = `http://smartpayt.com/prod-api/factor/paper/sky?x=f1&y=f1&param=${fax}&transDt=${date}`
 
     try {
         const response = await requestClient({ url, method: "GET" });
@@ -84,7 +84,7 @@ function mergeDataAndSchema(originalData?: any, originalSchema?: any, dataToMerg
 
 
 const getMarketData = async (date: string | null) => {
-    let url = `https://smartpayt.com/prod-api/factor/paper/market_sky`;
+    let url = `http://smartpayt.com/prod-api/factor/paper/market_sky`;
     if (date) {
         url += `?transDt=${date}`;
     }
@@ -108,7 +108,7 @@ const defaultParam: string[] = [
 ]
 
 const getData = async (x: string, y: string, param: string[], date: string | null) => {
-    let url = `https://smartpayt.com/prod-api/factor/paper/sky?x=${x}&y=${y}`;
+    let url = `http://smartpayt.com/prod-api/factor/paper/sky?x=${x}&y=${y}`;
     if (param.length > 0) {
         const paramStr = param.join(',')
         url += `&param=${paramStr}`;
