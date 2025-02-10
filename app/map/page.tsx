@@ -66,7 +66,7 @@ function mergeDataAndSchema(originalData?: any, originalSchema?: any, dataToMerg
     originalData.forEach((row, i) => {
         const secCd = row[secCdIndex1];
         // 在 dataToMerge 中查找对应的值
-        const mergeValue = dataToMerge.data.find((row2: any) => row2[secCdIndex2] === secCd)?.[columnIndex];
+        const mergeValue = dataToMerge.data.find((row2: any) => row2[secCdIndex2] == secCd)?.[columnIndex];
         // 如果找到了,就将值插入到 originalData 的这一行
         if (mergeValue !== undefined) {
             row.push(mergeValue);
@@ -273,44 +273,45 @@ export default function MapPage(message?: any) {
 
     // 高亮方法
     const handleCheckChange = (newSelectedChecks: Set<string>) => {
+        
         setSelectedChecks(newSelectedChecks)
         // 过滤高亮状态数据
         // ET2 为 null 或者 0：新股；
         const filter_Hl_NewStock_Data = newSelectedChecks.has("hl_newStock")
-            ? data.filter((item) => item[5] === null || item[5] === 0)
+            ? data.filter((item) => item[5] == null || item[5] == 0)
             : []
         setHl_newStock_data(filter_Hl_NewStock_Data)
 
         //  2：一字涨停；1：普通涨停；
         const filter_Hl_Up_Data = newSelectedChecks.has("hl_up")
-            ? data.filter((item) => item[6] === 2 || item[6] === 1)
+            ? data.filter((item) => item[6] == 2 || item[6] == 1)
             : []
         setHl_up_data(filter_Hl_Up_Data)
         // -2一字跌停； -1：普通跌停；
         const filter_Hl_Low_Data = newSelectedChecks.has("hl_low")
-            ? data.filter((item) => item[6] === -1 || item[6] === -2)
+            ? data.filter((item) => item[6] == -1 || item[6] == -2)
             : []
         setHl_low_data(filter_Hl_Low_Data)
 
         // 2: 30日新高
         const filter_Hl_NewHigh30_Data = newSelectedChecks.has("hl_newHigh30")
-            ? data.filter((item) => item[7] === 2)
+            ? data.filter((item) => item[7] == 2)
             : []
         setHl_newHigh30_data(filter_Hl_NewHigh30_Data)
         // 2: 30日新低
         const filter_Hl_NewLow30_Data = newSelectedChecks.has("hl_newLow30")
-            ? data.filter((item) => item[7] === -2)
+            ? data.filter((item) => item[7] == -2)
             : []
         setHl_newLow30_data(filter_Hl_NewLow30_Data)
 
         // 2: 60日新高
         const filter_Hl_NewHigh60_Data = newSelectedChecks.has("hl_newHigh60")
-            ? data.filter((item) => item[8] === 2)
+            ? data.filter((item) => item[8] == 2)
             : []
         setHl_newHigh60_data(filter_Hl_NewHigh60_Data)
         // 2: 60日新低
         const filter_Hl_NewLow60_Data = newSelectedChecks.has("hl_newLow60")
-            ? data.filter((item) => item[8] === -2)
+            ? data.filter((item) => item[8] == -2)
             : []
         setHl_newLow60_data(filter_Hl_NewLow60_Data)
 
